@@ -1,0 +1,24 @@
+1. Список всех планет галактики Млечный путь
+SELECT DISTINCT planet_id  from planets <br>
+    JOIN star_system on planets.star_system = star_system.star_system_id <br>
+    JOIN star on star_system.star_system_id = star.star_id <br>
+    JOIN galaxy g on star.galaxy = g.galaxy_id WHERE galaxy_id = 'Milky Way' <br>
+
+
+2.Список звездных систем с количеством потенциально обитаемых планет галактики G049
+SELECT DISTINCT star_system_id, count(*) as number_of_potentially_inhabbited_planets
+from planets
+    join star_system ss on planets.star_system = ss.star_system_id
+    join star s on ss.star_system_id = s.star_id
+    join galaxy on s.galaxy = galaxy.galaxy_id
+where potential_life = true and s.galaxy = 'G049'
+group by star_system_id
+
+
+3. 5 крупнейших астероидов солнечной системы.
+SELECT DISTINCT asteroid_id, size from asteroid
+    join star_system ss on asteroid.star_system = ss.star_system_id
+                                  where star_system_id = 'Sun'
+group by asteroid_id, size
+order by size desc
+limit 5

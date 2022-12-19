@@ -1,0 +1,1 @@
+create table observatory (observatory_name text, location text, creation_data date, altitude int)

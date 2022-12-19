@@ -1,0 +1,1 @@
+ALTER table author ADD COLUMN professional boolean
