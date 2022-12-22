@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta charset="UTF-8">
+  </head>
+<body>
+
+
+-- 1. Список всех планет галактики Млечный путь <br>
+<br>
+SELECT DISTINCT planet_id  from planets<br>
+    JOIN star_system on planets.star_system = star_system.star_system_id<br>
+    JOIN star on star_system.star_system_id = star.star_id<br>
+    JOIN galaxy g on star.galaxy = g.galaxy_id WHERE galaxy_id = 'Milky Way';<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>planet_id</th>
+</tr>
+<tr>
+  <td>Earth</td>
+</tr>
+<tr>
+  <td>Jupiter</td>
+</tr>
+<tr>
+  <td>Mars</td>
+</tr>
+<tr>
+  <td>Mercury</td>
+</tr>
+<tr>
+  <td>Neptune</td>
+</tr>
+<tr>
+  <td>P009</td>
+</tr>
+<tr>
+  <td>P031</td>
+</tr>
+<tr>
+  <td>P058</td>
+</tr>
+<tr>
+  <td>P191</td>
+</tr>
+<tr>
+  <td>P250</td>
+</tr>
+</table>
+<br>
+-- 2.Список звездных систем с количеством потенциально обитаемых планет галактики Млечный путь<br>
+<br>
+SELECT DISTINCT star_system_id, planet_id as number_of_potentially_inhabbited_planets<br>
+from planets<br>
+    join star_system ss on planets.star_system = ss.star_system_id<br>
+    join star s on ss.star_system_id = s.star_id<br>
+    join galaxy on s.galaxy = galaxy.galaxy_id<br>
+where potential_life = true and galaxy_id = 'Milky Way'<br>
+group by star_system_id, planet_id;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>star_system_id</th>
+  <th>number_of_potentially_inhabbited_planets</th>
+</tr>
+<tr>
+  <td>Dubhe</td>
+  <td>2</td>
+</tr>
+<tr>
+  <td>Sun</td>
+  <td>2</td>
+</tr>
+</table>
+<br>
+-- 3. 5 крупнейших астероидов солнечной системы.<br>
+<br>
+SELECT DISTINCT asteroid_id, size from asteroid<br>
+    join star_system ss on asteroid.star_system = ss.star_system_id<br>
+              where star_system_id = 'Sun'<br>
+group by asteroid_id, size<br>
+order by size desc<br>
+limit 5;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>asteroid_id</th>
+  <th>size</th>
+</tr>
+<tr>
+  <td>Cerera</td>
+  <td>950</td>
+</tr>
+<tr>
+  <td>A0360</td>
+  <td>800</td>
+</tr>
+<tr>
+  <td>A6072</td>
+  <td>800</td>
+</tr>
+<tr>
+  <td>A4438</td>
+  <td>800</td>
+</tr>
+<tr>
+  <td>A3669</td>
+  <td>799</td>
+</tr>
+</table>
+<br>
+-- 4. Сколько планет было открыто с 2000 по настоящее время<br>
+<br>
+SELECT count(planet_id) as amount_of_discoverd_planets<br>
+from planets<br>
+    join objects o on o.object_id = planets.planet_id<br>
+where discovery_date between '2000-01-01' and current_date;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>amount_of_discoverd_planets</th>
+</tr>
+<tr>
+  <td>525</td>
+</tr>
+</table>
+<br>
+-- 5. Количесвто профессиональных астрономов и любителей<br>
+<br>
+select count(author_name), professional from author  <br>
+group by professional<br>
+order by professional desc<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>count</th>
+  <th>professional</th>
+</tr>
+<tr>
+  <td>57</td>
+  <td>true</td>
+</tr>
+<tr>
+  <td>33</td>
+  <td>false</td>
+</tr>
+</table>
+<br>
+-- 6 Сколько планет находится в самых массивных звездных системах.<br>
+<br>
+SELECT count(planet_id), star_system_id, mass<br>
+from planets join star_system on planets.star_system = star_system.star_system_id<br>
+group by star_system_id, mass<br>
+order by mass desc<br>
+limit 5;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>count</th>
+  <th>star_system_id</th>
+  <th>mass</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td>S181</td>
+  <td>49.7</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S121</td>
+  <td>49.4</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S059</td>
+  <td>49.3</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>S171</td>
+  <td>49</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>S069</td>
+  <td>48.8</td>
+</tr>
+</table>
+<br>
+-- 7. Кто из профессиональных астрономов открыл больше всех звезд в галактике "G032"?<br>
+<br>
+select discovery_author, count(object_id) as amount_of_discovered_stars<br>
+from objects join star s on objects.object_id = s.star_id<br>
+ join galaxy g on g.galaxy_id = s.galaxy join author a on a.author_name = objects.discovery_author<br>
+where object_id = s.star_id and galaxy_id = 'G032' and professional = 'true'<br>
+group by discovery_author<br>
+order by amount_of_discovered_stars desc<br>
+limit 3;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>discovery_author</th>
+  <th>amount_of_discovered_stars</th>
+</tr>
+<tr>
+  <td>Ronaldo Rogério de Freitas Mourão</td>
+  <td>2</td>
+</tr>
+<tr>
+  <td>William Hershill</td>
+  <td>2</td>
+</tr>
+<tr>
+  <td>A. David Andrews</td>
+  <td>1</td>
+</tr>
+</table>
+<br>
+-- 8. У каких стран есть оптические телескопы с аппертурой больше 10 метров?<br>
+-- N.B.К оптическим также относятся рефлекторы и телескопы систем Кассергейна и Ричи-Кретьена<br>
+<br>
+Select distinct country, aperture, telescope_name<br>
+from telescope<br>
+where aperture > 10 and (type = 'optical' or type = 'reflector' or type = 'cassegrain' or type ='Richie-Chretien');<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>count</th>
+  <th>star_system_id</th>
+  <th>mass</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td>S181</td>
+  <td>49.7</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S121</td>
+  <td>49.4</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S059</td>
+  <td>49.3</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>S171</td>
+  <td>49</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>S069</td>
+  <td>48.8</td>
+</tr>
+</table>
+<br>
+-- 9. Какая обсерватория открыла самый молодой металлический астероид в солнечной системе, размерами больше 400 км?<br>
+<br>
+select distinct observatory_name, asteroid_id, composition, size, discovery_date from observatory<br>
+    join telescope t on observatory.observatory_name = t.observatory<br>
+    join objects o on t.telescope_name = o.telescope<br>
+    join asteroid a on o.object_id = a.asteroid_id<br>
+where star_system = 'Sun' and composition = 'metal' and size > 400<br>
+order by discovery_date desc<br>
+limit 5;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>count</th>
+  <th>star_system_id</th>
+  <th>mass</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td>S181</td>
+  <td>49.7</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S121</td>
+  <td>49.4</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>S059</td>
+  <td>49.3</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>S171</td>
+  <td>49</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>S069</td>
+  <td>48.8</td>
+</tr>
+</table>
+<br>
+-- 10. Найти все планеты земного типа, открытые после 2010 года одним из телескопов обсеравтории Мауна-кеа,<br>
+-- удаленные от своих звезд более чем в 10 раз дальше земли. Укажите расстояние и в какой звездной системе они находятся.<br>
+-- Упорядочите по удаленности от звезды. Выведете первые 10 и последние 10 результатов.<br>
+<br>
+(select distinct planet_id, telescope_name, distance_from_star, star_system from planets<br>
+    join objects o on o.object_id = planets.planet_id<br>
+    join telescope t on t.telescope_name = o.telescope<br>
+    join observatory o2 on o2.observatory_name = t.observatory<br>
+where distance_from_star > 10 and discovery_date > '2010-01-01' and observatory = 'Mauna Kea' and planets.type = 'Earth type'<br>
+order by distance_from_star desc limit 10)<br>
+UNION ALL<br>
+(select distinct planet_id, telescope_name, distance_from_star, star_system from planets<br>
+    join objects o on o.object_id = planets.planet_id<br>
+    join telescope t on t.telescope_name = o.telescope<br>
+    join observatory o2 on o2.observatory_name = t.observatory<br>
+where distance_from_star > 10 and discovery_date > '2010-01-01' and observatory = 'Mauna Kea' and planets.type = 'Earth type'<br>
+order by distance_from_star limit 10);<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>planet_id</th>
+  <th>telescope_name</th>
+  <th>distance_from_star</th>
+  <th>star_system</th>
+</tr>
+<tr>
+  <td>P529</td>
+  <td>CSO</td>
+  <td>39.582</td>
+  <td>S150</td>
+</tr>
+<tr>
+  <td>P433</td>
+  <td>Subaru</td>
+  <td>39.011</td>
+  <td>S154</td>
+</tr>
+<tr>
+  <td>P331</td>
+  <td>IRTF</td>
+  <td>38.761</td>
+  <td>S127</td>
+</tr>
+<tr>
+  <td>P146</td>
+  <td>CSO</td>
+  <td>37.598</td>
+  <td>S171</td>
+</tr>
+<tr>
+  <td>P290</td>
+  <td>CSO</td>
+  <td>37.202</td>
+  <td>S149</td>
+</tr>
+<tr>
+  <td>P380</td>
+  <td>IRTF</td>
+  <td>36.959</td>
+  <td>S170</td>
+</tr>
+<tr>
+  <td>P242</td>
+  <td>SMA</td>
+  <td>36.307</td>
+  <td>S056</td>
+</tr>
+<tr>
+  <td>P475</td>
+  <td>IRTF</td>
+  <td>36.171</td>
+  <td>S011</td>
+</tr>
+<tr>
+  <td>P154</td>
+  <td>Subaru</td>
+  <td>35.936</td>
+  <td>S183</td>
+</tr>
+<tr>
+  <td>P116</td>
+  <td>UKRIT</td>
+  <td>35.054</td>
+  <td>S197</td>
+</tr>
+</table>
+<br>
+    -- 11. Выберите пары комет состоящих из метанового льда, удаленность орбит которых отличается не более чем на 5 миллионов км друг от друга.<br>
+    -- Орбиты этих комет должны быть меньше среднего значения орбит газовых гигантов. Разницу и удаленность выведите в результат в млн.км в округленном виде.<br>
+    -- Пары должны быть уникальными (т.е не должно быть повторяющихся зеркальных строк вроде С0001-С0002, C0002-C0001)<br>
+    -- Подсказка: удаленность орбиты дана в астрономических еденицах. 1 а.е. = 150.000.000 км.<br>
+<br>
+    Select distinct c1.comet_id as first_comet,  c2.comet_id as second_comet,<br>
+                  round(c1.orbit_remoteness*150) as first_comet_remoteness,<br>
+                    round(c2.orbit_remoteness *150) as second_comet_remoteness,<br>
+                    round(c1.orbit_remoteness * 150.) - round(c2.orbit_remoteness * 150) as comet_distance_from_each_other<br>
+    from comet c1, comet c2<br>
+    where<br>
+        (c1.orbit_remoteness * 150) - (c2.orbit_remoteness * 150) <= 5 and<br>
+        (c1.orbit_remoteness * 150) - (c2.orbit_remoteness * 150) >= -5 and<br>
+        c1.comet_id < c2.comet_id and<br>
+          c1.orbit_remoteness <=<br>
+            (select avg(distance_from_star)<br>
+             from planets where planets.type = 'gas giant')<br>
+    and c1.composition = 'methan ice' and c2.composition = 'methan ice'<br>
+order by c1.comet_id;<br>
+<br>
+<table border="1" style="border-collapse:collapse">
+<tr>
+  <th>first_comet</th>
+  <th>second_comet</th>
+  <th>first_comet_remoteness</th>
+  <th>second_comet_remoteness</th>
+  <th>comet_distance_from_each_other</th>
+</tr>
+<tr>
+  <td>C1214</td>
+  <td>C1385</td>
+  <td>981</td>
+  <td>981</td>
+  <td>0</td>
+</tr>
+<tr>
+  <td>C1237</td>
+  <td>C2624</td>
+  <td>1514</td>
+  <td>1512</td>
+  <td>2</td>
+</tr>
+<tr>
+  <td>C1278</td>
+  <td>C214</td>
+  <td>2865</td>
+  <td>2862</td>
+  <td>3</td>
+</tr>
+<tr>
+  <td>C1372</td>
+  <td>C675</td>
+  <td>2934</td>
+  <td>2934</td>
+  <td>0</td>
+</tr>
+<tr>
+  <td>C1455</td>
+  <td>C1648</td>
+  <td>2462</td>
+  <td>2466</td>
+  <td>-4</td>
+</tr>
+<tr>
+  <td>C146</td>
+  <td>C884</td>
+  <td>1484</td>
+  <td>1480</td>
+  <td>4</td>
+</tr>
+<tr>
+  <td>C1644</td>
+  <td>C1647</td>
+  <td>1758</td>
+  <td>1754</td>
+  <td>4</td>
+</tr>
+<tr>
+  <td>C1644</td>
+  <td>C2109</td>
+  <td>1758</td>
+  <td>1760</td>
+  <td>-2</td>
+</tr>
+<tr>
+  <td>C1689</td>
+  <td>C2175</td>
+  <td>2456</td>
+  <td>2454</td>
+  <td>2</td>
+</tr>
+<tr>
+  <td>C1810</td>
+  <td>C636</td>
+  <td>2824</td>
+  <td>2822</td>
+  <td>2</td>
+</tr>
+</table>
+<br>
+<br>
+
+</body>
+</html>
